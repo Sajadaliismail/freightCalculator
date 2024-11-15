@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import {
-  calculatePrice,
-  countryNames,
-  importZones,
-  validateData,
-} from "./utilities";
+import { calculatePrice, countryNames, validateData } from "./utilities";
 
-const FormField = ({ label, type, value, onChange, name }) => {
+const FormField = ({ label, type, value, onChange, name, error }) => {
   return (
     <label className="flex flex-col">
       {label}
@@ -15,9 +10,13 @@ const FormField = ({ label, type, value, onChange, name }) => {
         name={name}
         type={type}
         value={value}
+        placeholder={label}
         onChange={onChange}
-        className="w-full bg-gray-100 outline-1 border-2 h-10 rounded-xl px-3"
+        className={`w-full bg-gray-100 outline-0 border-2  h-10 rounded-xl px-3 ${
+          error ? "border-red-500" : ""
+        }`}
       />
+      {error && <span className="text-red-700 text-sm text-left">{error}</span>}
     </label>
   );
 };
@@ -27,21 +26,34 @@ function App() {
   const [heading, setHeading] = useState("Import from");
   const [selectedImport, setSelectedImport] = useState("India");
   const [selectedExport, setSelectedExport] = useState("Qatar");
-  const [error, setError] = useState({});
+  const [getQuote, setGetQoute] = useState(false);
+  const [error, setError] = useState({
+    weight: "",
+    boxes: "",
+    name: "",
+    phone: "",
+    length: "",
+    width: "",
+    height: "",
+    postCode: "",
+    email: "",
+    countrySelected: "",
+  });
   const [price, setPrice] = useState(null);
   const [formValues, setformValues] = useState({
-    weight: null,
-    boxes: null,
-    name: "",
-    phone: null,
-    length: null,
-    width: null,
-    height: null,
-    postCode: null,
-    email: null,
+    weight: undefined,
+    boxes: undefined,
+    name: undefined,
+    phone: undefined,
+    length: undefined,
+    width: undefined,
+    height: undefined,
+    postCode: undefined,
+    email: undefined,
   });
 
   const submitForm = async () => {
+    setGetQoute(false);
     try {
       const validate = validateData({
         ...formValues,
@@ -51,17 +63,28 @@ function App() {
       });
 
       setError(validate.error);
-      console.log(validate);
 
       if (!validate.err) {
+        setError({
+          weight: "",
+          boxes: "",
+          name: "",
+          phone: "",
+          length: "",
+          width: "",
+          height: "",
+          postCode: "",
+          email: "",
+          countrySelected: "",
+        });
         const result = calculatePrice({
           ...formValues,
           mode,
           selectedExport,
           selectedImport,
         });
-        console.log(result);
-        setPrice(result);
+        if (!result) setGetQoute(true);
+        else setPrice(result);
       }
     } catch (error) {
       console.log(error);
@@ -81,6 +104,11 @@ function App() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    setGetQoute(false);
+    setError((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
     setformValues((prevValues) => ({
       ...prevValues,
       [name]: value,
@@ -135,7 +163,7 @@ function App() {
             Country from
             <select
               className="h-10 rounded-xl"
-              disabled={mode == "export"}
+              disabled={mode === "export"}
               value={selectedImport}
               onChange={handleImportCountryChange}
             >
@@ -147,6 +175,7 @@ function App() {
             </select>
           </label>
           <FormField
+            error={error.weight}
             label="Weight"
             type="number"
             value={formValues.weight}
@@ -154,6 +183,7 @@ function App() {
             onChange={handleInputChange}
           />
           <FormField
+            error={error.boxes}
             label="Number of Boxes"
             type="number"
             value={formValues.boxes}
@@ -161,6 +191,7 @@ function App() {
             onChange={handleInputChange}
           />
           <FormField
+            error={error.name}
             label="Name"
             type="text"
             value={formValues.name}
@@ -168,6 +199,7 @@ function App() {
             onChange={handleInputChange}
           />
           <FormField
+            error={error.phone}
             label="Phone"
             type="text"
             value={formValues.phone}
@@ -181,7 +213,7 @@ function App() {
             Country to
             <select
               className="h-10 rounded-xl"
-              disabled={mode == "import"}
+              disabled={mode === "import"}
               value={selectedExport}
               onChange={handleExportCountryChange}
             >
@@ -195,6 +227,7 @@ function App() {
 
           <div className="flex flex-row w-full gap-3">
             <FormField
+              error={error.length}
               label="Length (cm)"
               type="number"
               value={formValues.length}
@@ -203,6 +236,7 @@ function App() {
             />
             <FormField
               label="Width (cm)"
+              error={error.width}
               type="number"
               value={formValues.width}
               name="width"
@@ -211,6 +245,7 @@ function App() {
             <FormField
               label="Height (cm)"
               type="number"
+              error={error.height}
               value={formValues.height}
               name="height"
               onChange={handleInputChange}
@@ -220,11 +255,13 @@ function App() {
           <FormField
             label="Post code"
             type="text"
+            error={error.postCode}
             value={formValues.postCode}
             name="postCode"
             onChange={handleInputChange}
           />
           <FormField
+            error={error.email}
             label="Email"
             type="email"
             value={formValues.email}
@@ -232,13 +269,19 @@ function App() {
             onChange={handleInputChange}
           />
 
-          <button
-            onClick={submitForm}
-            className="bg-blue-600 w-fit text-white mx-auto"
-          >
-            Calculate shipping charge
-          </button>
           {price && <h3 className="text-2xl">Price Will be :{price}</h3>}
+          {getQuote ? (
+            <button className="bg-blue-600 w-fit text-white mx-auto h-12 px-3 rounded-lg">
+              Get a quote for this
+            </button>
+          ) : (
+            <button
+              onClick={submitForm}
+              className="bg-blue-600 w-fit text-white mx-auto h-12 px-3 rounded-lg"
+            >
+              Calculate shipping charge
+            </button>
+          )}
         </div>
       </div>
     </div>
