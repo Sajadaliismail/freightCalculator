@@ -142,7 +142,7 @@ function App() {
 
   return (
     <div className="flex flex-col min-w-[100vw]  bg-gradient-to-br min-h-[100vh] from-[#021f61] via-[#021f6195] to-[#021f61] text-white">
-      <h1 className="text-center text-5xl py-8 font-semibold underline">
+      <h1 className="text-center text-4xl md:text-5xl py-8 font-semibold underline">
         Rate Calculation
       </h1>
       <div className="flex flex-row flex-wrap justify-center gap-8 text-lg">
@@ -183,8 +183,8 @@ function App() {
         </span>
       )}
 
-      <div className="flex md:flex-row flex-col md:px-3 px-3 w-full">
-        <div className="flex flex-col w-full text-center md:mx-16 gap-3">
+      <div className="flex md:flex-row flex-col gap-16 md:gap-0 md:px-3 px-3 w-full">
+        <div className="flex flex-col w-full text-center md:px-16 gap-3">
           <label className="flex flex-col">
             Country from
             <select
@@ -244,7 +244,7 @@ function App() {
           </div>
         </div>
 
-        <div className="flex flex-col w-full text-center md:mx-16 gap-3">
+        <div className="flex flex-col w-full text-center md:px-16 gap-3">
           <label className="flex flex-col">
             Country to
             <select
@@ -320,15 +320,6 @@ function App() {
             Calculate shipping charge
           </button>
         )}
-        {/* const result: {
-    price: any;
-    totalWeight: any;
-    volume: number;
-    totalBoxes: any;
-    mode: any;
-    imported: any;
-    exported: any;
-} | null */}
 
         {summary.price && (
           <div className="flex flex-col w-fit justify-center items-center  bg-[#3131314f] mx-auto my-3 px-4 rounded-xl text-white">
