@@ -4,22 +4,95 @@ import useFetchCSV from "./useFetchZones.jsx";
 import useFetchExtraRates from "./useFetchExtraRates.jsx";
 import useFetchRates from "./useFetchRates.jsx";
 
-const FormField = ({ label, type, value, onChange, name, error }) => {
+export const FormField = ({
+  label,
+  type,
+  value,
+  onChange,
+  name,
+  error,
+  ...props
+}) => {
   return (
-    <label className="flex flex-col">
-      {label}
-      <input
-        name={name}
-        type={type}
-        value={value}
-        placeholder={label}
-        onChange={onChange}
-        className={`w-full bg-gray-100 text-black outline-0 border-2  h-10 rounded-xl px-3 ${
-          error ? "border-red-500" : ""
-        }`}
-      />
-      {error && <span className="text-red-700 text-sm text-left">{error}</span>}
+    <div className="w-full mb-2 md:mb-1">
+      <label className="block font-medium  mb-1" htmlFor={name}>
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={name}
+          name={name}
+          type={type}
+          value={value}
+          onChange={onChange}
+          className={`
+            w-full px-3 py-2 bg-white text-gray-900 rounded-lg
+            border ${error ? "border-red-500" : "border-gray-300"}
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+            transition duration-150 ease-in-out
+          `}
+          placeholder={label}
+          {...props}
+        />
+        {error && (
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <p className=" text-sm text-red-500 ">{error}</p>
+            <svg
+              className="h-5 w-5 text-red-500"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+const RadioButton = ({ id, value, checked, onChange, label }) => {
+  return (
+    <label
+      htmlFor={id}
+      className="flex items-center space-x-3 cursor-pointer group"
+    >
+      <div className="relative">
+        <input
+          type="radio"
+          id={id}
+          value={value}
+          checked={checked}
+          onChange={onChange}
+          className="sr-only"
+        />
+        <div className="w-6 h-6 bg-white border-2 border-gray-300 rounded-full group-hover:border-blue-500 transition-colors">
+          <div
+            className={`absolute w-3 h-3 bg-blue-600 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-opacity ${checked ? "opacity-100" : "opacity-0"}`}
+          ></div>
+        </div>
+      </div>
+      <span className="text-lg font-medium  group-hover:text-blue-200 transition-colors">
+        {label}
+      </span>
     </label>
+  );
+};
+const SummaryItem = ({ label, value, highlight = false }) => {
+  return (
+    <div
+      className={`flex justify-between items-center p-3 rounded ${highlight ? "bg-gray-700 col-span-full md:col-span-3" : "bg-gray-700/50"}`}
+    >
+      <h2 className={`font-medium ${highlight ? "text-lg" : "text-base"}`}>
+        {label}:
+      </h2>
+      <span className={`font-semibold ${highlight ? "text-xl" : "text-lg"}`}>
+        {value}
+      </span>
+    </div>
   );
 };
 
@@ -56,9 +129,23 @@ function App() {
     postCode: undefined,
     email: undefined,
   });
-
+  const resetError = () => {
+    setError({
+      weight: "",
+      boxes: "",
+      name: "",
+      phone: "",
+      length: "",
+      width: "",
+      height: "",
+      postCode: "",
+      email: "",
+      countrySelected: "",
+    });
+  };
   const submitForm = async () => {
     try {
+      setSummary({});
       const validate = validateData({
         ...formValues,
         mode,
@@ -69,18 +156,7 @@ function App() {
       setError(validate.error);
 
       if (!validate.err) {
-        setError({
-          weight: "",
-          boxes: "",
-          name: "",
-          phone: "",
-          length: "",
-          width: "",
-          height: "",
-          postCode: "",
-          email: "",
-          countrySelected: "",
-        });
+        resetError();
         const result = calculatePrice(
           {
             ...formValues,
@@ -101,10 +177,16 @@ function App() {
   };
 
   const toggleMode = (e) => {
+    setSummary({});
+    resetError();
+
     setMode(e.target.value);
   };
 
   const handleImportCountryChange = (e) => {
+    setSummary({});
+    resetError();
+
     setError((prev) => ({
       ...prev,
       countrySelected: "",
@@ -112,6 +194,8 @@ function App() {
     setSelectedImport(e.target.value);
   };
   const handleExportCountryChange = (e) => {
+    setSummary({});
+
     setError((prev) => ({
       ...prev,
       countrySelected: "",
@@ -120,6 +204,8 @@ function App() {
   };
 
   const handleInputChange = (e) => {
+    setSummary({});
+
     const { name, value } = e.target;
     setError((prev) => ({
       ...prev,
@@ -145,39 +231,32 @@ function App() {
         Rate Calculation
       </h1>
       <div className="flex flex-row flex-wrap justify-center gap-8 text-lg">
-        <label className="flex flex-row gap-2">
-          <input
-            type="radio"
-            value="export"
-            checked={mode === "export"}
-            onChange={toggleMode}
-          />
-          EXPORT
-        </label>
-        <label className="flex flex-row gap-2">
-          <input
-            type="radio"
-            value="import"
-            checked={mode === "import"}
-            onChange={toggleMode}
-          />
-          IMPORT
-        </label>
-
-        <label className="flex flex-row gap-2">
-          <input
-            type="radio"
-            value="crosstrade"
-            checked={mode === "crosstrade"}
-            onChange={toggleMode}
-          />
-          CROSS TRADE
-        </label>
+        <RadioButton
+          id="export"
+          value="export"
+          checked={mode === "export"}
+          onChange={toggleMode}
+          label="EXPORT"
+        />
+        <RadioButton
+          id="import"
+          value="import"
+          checked={mode === "import"}
+          onChange={toggleMode}
+          label="IMPORT"
+        />
+        <RadioButton
+          id="crosstrade"
+          value="crosstrade"
+          checked={mode === "crosstrade"}
+          onChange={toggleMode}
+          label="CROSS TRADE"
+        />
       </div>
 
       <h1 className="text-center text-3xl my-3">{heading}</h1>
       {error.countrySelected && (
-        <span className="text-center text-red-600">
+        <span className="text-center text-white bg-red-500 w-fit mx-auto p-1 rounded-md">
           {error.countrySelected}
         </span>
       )}
@@ -187,7 +266,7 @@ function App() {
           <label className="flex flex-col">
             Country from
             <select
-              className="h-10 rounded-xl text-black "
+              className="h-10 rounded-lg text-black "
               disabled={mode === "export"}
               value={selectedImport}
               onChange={handleImportCountryChange}
@@ -201,7 +280,7 @@ function App() {
           </label>
           <FormField
             error={error.weight}
-            label="Total Weight"
+            label="Total Weight (Kg)"
             type="number"
             value={formValues.weight}
             name="weight"
@@ -223,11 +302,11 @@ function App() {
             name="name"
             onChange={handleInputChange}
           />
-          <div className="flex md:flex-row flex-col w-[100%] md:gap-14 gap:3">
+          <div className="grid md:grid-cols-2 gap-6">
             <FormField
               error={error.phone}
               label="Phone"
-              type="text"
+              type="tel"
               value={formValues.phone}
               name="phone"
               onChange={handleInputChange}
@@ -247,7 +326,7 @@ function App() {
           <label className="flex flex-col">
             Country to
             <select
-              className="h-10 rounded-xl  text-black"
+              className="h-10 rounded-lg  text-black"
               disabled={mode === "import"}
               value={selectedExport}
               onChange={handleExportCountryChange}
@@ -306,54 +385,45 @@ function App() {
           </label>
         </div>
       </div>
-      <div className="py-4 flex justify-center flex-col md:text-xl text-lg">
+      <div className="md:py-10 py-4  flex justify-center flex-col md:text-xl text-lg">
         {mode === "crosstrade" ? (
-          <button className="bg-blue-600 w-fit text-white mx-auto h-12 px-3 rounded-lg ">
+          <button className="bg-[#243568] w-fit text-white mx-auto h-12 px-3 rounded-lg shadow-xl hover:scale-105 duration-300 ">
             Get a quote for this
           </button>
         ) : (
           <button
             onClick={submitForm}
-            className="bg-blue-600 w-fit text-white mx-auto h-12 px-3 rounded-lg"
+            className="bg-[#243568] w-fit text-white mx-auto h-12 px-3 rounded-lg shadow-xl hover:scale-105 duration-300"
           >
             Calculate shipping charge
           </button>
         )}
 
         {summary.price && (
-          <div className="flex flex-col w-fit justify-center items-center  bg-[#3131314f] mx-auto my-3 px-4 rounded-xl text-white">
-            <h1 className="text-3xl">Summary</h1>
-            <div className="space-y-4">
-              {" "}
-              <div className="flex justify-between">
-                <h2>Total Weight:</h2>
-                <span>{summary.totalWeight}</span>
-              </div>
-              <div className="flex justify-between">
-                <h2>Total Volume:</h2>
-                <span>{summary.volume}</span>
-              </div>
-              <div className="flex justify-between">
-                <h2>Total Boxes:</h2>
-                <span>{summary.totalBoxes}</span>
-              </div>
-              <div className="flex justify-between">
-                <h2>Country to:</h2>
-                <span>{summary.exported}</span>
-              </div>
-              <div className="flex justify-between">
-                <h2>Country from:</h2>
-                <span>{summary.imported}</span>
-              </div>
-              <div className="flex justify-between items-center text-lg font-semibold">
-                <h3>Estimated Cost will be:</h3>
-                <span>
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  }).format(summary.price)}
-                </span>
-              </div>
+          <div className="w-full max-w-4xl mx-auto my-3 p-6 rounded-xl bg-transparent text-white">
+            <h1 className="text-3xl font-bold text-center mb-6">Summary</h1>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <SummaryItem
+                label="Total Weight"
+                value={`${summary.totalWeight} Kg`}
+              />
+              <SummaryItem label="Total Volume" value={`${summary.volume} L`} />
+              <SummaryItem
+                label="Total Boxes"
+                value={`${summary.totalBoxes} Nos`}
+              />
+
+              <SummaryItem
+                label="Estimated Cost"
+                value={
+                  new Intl.NumberFormat("en-AE", {
+                    style: "decimal",
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(summary.price) + " AED"
+                }
+                highlight
+              />
             </div>
           </div>
         )}
