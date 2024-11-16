@@ -181,14 +181,53 @@ function App() {
     }
   };
 
+  const submitQuery = async () => {
+    const validate = validateData({
+      ...formValues,
+      mode,
+      selectedExport,
+      selectedImport,
+    });
+
+    setError(validate.error);
+
+    if (validate.err) return;
+
+    try {
+      const response = await fetch(window.wpApiSettings.restUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-WP-Nonce": window.wpApiSettings.nonce,
+        },
+        body: JSON.stringify({
+          ...formValues,
+          mode,
+          selectedExport,
+          selectedImport,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Form submitted successfully!");
+      } else {
+        alert("Error: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Submission failed.");
+    }
+  };
+
   const toggleMode = (e) => {
     setSummary({});
     resetError();
     if (e.target.value === "import") {
       setSelectedImport("UAE");
       setSelectedExport("Afghanistan");
-    }
-    if (e.target.value === "export") {
+    } else if (e.target.value === "export") {
       setSelectedExport("UAE");
       setSelectedImport("Afghanistan");
     }
@@ -291,7 +330,14 @@ function App() {
                 </option>
               ) : (
                 countries
-                  .filter((country) => country !== "UAE")
+                  .filter((country) => {
+                    if (mode !== "crosstrade") {
+                      if (country !== "UAE") {
+                        return country;
+                      }
+                    }
+                    return country;
+                  })
                   .map((country, idx) => (
                     <option className="text-black" key={idx} value={country}>
                       {country}
@@ -358,7 +404,14 @@ function App() {
                 </option>
               ) : (
                 countries
-                  .filter((country) => country !== "UAE")
+                  .filter((country) => {
+                    if (mode !== "crosstrade") {
+                      if (country !== "UAE") {
+                        return country;
+                      }
+                    }
+                    return country;
+                  })
                   .map((country, idx) => (
                     <option className="text-black" key={idx} value={country}>
                       {country}
@@ -420,7 +473,10 @@ function App() {
       </div>
       <div className="md:py-10 py-4  flex justify-center flex-col md:text-xl text-lg">
         {mode === "crosstrade" ? (
-          <button className="bg-[#243568] w-fit text-white mx-auto h-12 px-3 rounded-md shadow-xl hover:scale-105 duration-300 ">
+          <button
+            onClick={submitQuery}
+            className="bg-[#243568] w-fit text-white mx-auto h-12 px-3 rounded-md shadow-xl hover:scale-105 duration-300 "
+          >
             Get a quote for this
           </button>
         ) : (
