@@ -1,4 +1,6 @@
 export const validateData = (data) => {
+  console.log(data);
+
   const error = {};
   let err = false;
 
@@ -9,6 +11,7 @@ export const validateData = (data) => {
 
   for (const [key, value] of Object.entries(data)) {
     if (value === "" || value === null || value === undefined) {
+      if (key === "remarks") continue;
       error[key] = "*required";
       err = true;
       continue;

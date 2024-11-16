@@ -15,7 +15,10 @@ export const FormField = ({
 }) => {
   return (
     <div className="w-full mb-2 md:mb-1">
-      <label className="block font-medium  mb-1" htmlFor={name}>
+      <label
+        className="block font-medium md:text-base text-sm  mb-1"
+        htmlFor={name}
+      >
         {label}
       </label>
       <div className="relative">
@@ -26,7 +29,7 @@ export const FormField = ({
           value={value}
           onChange={onChange}
           className={`
-            w-full px-3 py-2 bg-white text-gray-900 rounded-lg
+            w-full px-3 py-2 bg-white text-gray-900 rounded-md
             border ${error ? "border-red-500" : "border-gray-300"}
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
             transition duration-150 ease-in-out
@@ -118,6 +121,7 @@ function App() {
     countrySelected: "",
   });
   const [summary, setSummary] = useState({});
+
   const [formValues, setformValues] = useState({
     weight: undefined,
     boxes: undefined,
@@ -128,6 +132,7 @@ function App() {
     height: undefined,
     postCode: undefined,
     email: undefined,
+    remarks: undefined,
   });
   const resetError = () => {
     setError({
@@ -179,6 +184,14 @@ function App() {
   const toggleMode = (e) => {
     setSummary({});
     resetError();
+    if (e.target.value === "import") {
+      setSelectedImport("UAE");
+      setSelectedExport("Afghanistan");
+    }
+    if (e.target.value === "export") {
+      setSelectedExport("UAE");
+      setSelectedImport("Afghanistan");
+    }
 
     setMode(e.target.value);
   };
@@ -226,8 +239,8 @@ function App() {
   }, [mode]);
 
   return (
-    <div className="flex flex-col min-w-[100vw]  bg-gradient-to-br min-h-[100vh] from-[#021f61] via-[#021f6195] to-[#021f61] text-white">
-      <h1 className="text-center text-4xl md:text-5xl py-8 font-semibold underline">
+    <div className="flex flex-col min-w-[100vw]  bg-[radial-gradient(ellipse_at_center,_#021f6195,_#021f61)] text-white">
+      <h1 className="text-center text-3xl md:text-5xl py-8 font-semibold underline">
         Rate Calculation
       </h1>
       <div className="flex flex-row flex-wrap justify-center gap-8 text-lg">
@@ -254,7 +267,9 @@ function App() {
         />
       </div>
 
-      <h1 className="text-center text-3xl my-3">{heading}</h1>
+      <h1 className="text-center text-4xl font-semibold w-fit mx-auto p-1 rounded-md   my-3">
+        {heading}
+      </h1>
       {error.countrySelected && (
         <span className="text-center text-white bg-red-500 w-fit mx-auto p-1 rounded-md">
           {error.countrySelected}
@@ -266,16 +281,23 @@ function App() {
           <label className="flex flex-col">
             Country from
             <select
-              className="h-10 rounded-lg text-black "
-              disabled={mode === "export"}
+              className="h-10 rounded-md   text-black "
               value={selectedImport}
               onChange={handleImportCountryChange}
             >
-              {countries.map((country, idx) => (
-                <option className="text-black" key={idx} value={country}>
-                  {country}
+              {mode === "export" ? (
+                <option className="text-black" value={"UAE"}>
+                  UAE
                 </option>
-              ))}
+              ) : (
+                countries
+                  .filter((country) => country !== "UAE")
+                  .map((country, idx) => (
+                    <option className="text-black" key={idx} value={country}>
+                      {country}
+                    </option>
+                  ))
+              )}
             </select>
           </label>
           <FormField
@@ -326,16 +348,23 @@ function App() {
           <label className="flex flex-col">
             Country to
             <select
-              className="h-10 rounded-lg  text-black"
-              disabled={mode === "import"}
+              className="h-10 rounded-md  text-black "
               value={selectedExport}
               onChange={handleExportCountryChange}
             >
-              {countries.map((country, idx) => (
-                <option className=" text-black" key={idx} value={country}>
-                  {country}
+              {mode === "import" ? (
+                <option className="text-black" value={"UAE"}>
+                  UAE
                 </option>
-              ))}
+              ) : (
+                countries
+                  .filter((country) => country !== "UAE")
+                  .map((country, idx) => (
+                    <option className="text-black" key={idx} value={country}>
+                      {country}
+                    </option>
+                  ))
+              )}
             </select>
           </label>
 
@@ -374,12 +403,16 @@ function App() {
             name="postCode"
             onChange={handleInputChange}
           />
-          <label className="flex flex-col">
+          <label className="flex flex-col font-medium text-sm md:text-base">
             Remarks
             <textarea
-              className="rounded-xl outline-0 text-black p-2"
-              rows={4}
+              className="rounded-md outline-0 text-black p-2"
+              rows={5}
+              placeholder="Your remarks"
               maxLength={250}
+              value={formValues.remarks}
+              name="remarks"
+              onChange={handleInputChange}
               style={{ resize: "none" }}
             ></textarea>
           </label>
@@ -387,20 +420,20 @@ function App() {
       </div>
       <div className="md:py-10 py-4  flex justify-center flex-col md:text-xl text-lg">
         {mode === "crosstrade" ? (
-          <button className="bg-[#243568] w-fit text-white mx-auto h-12 px-3 rounded-lg shadow-xl hover:scale-105 duration-300 ">
+          <button className="bg-[#243568] w-fit text-white mx-auto h-12 px-3 rounded-md shadow-xl hover:scale-105 duration-300 ">
             Get a quote for this
           </button>
         ) : (
           <button
             onClick={submitForm}
-            className="bg-[#243568] w-fit text-white mx-auto h-12 px-3 rounded-lg shadow-xl hover:scale-105 duration-300"
+            className="bg-[#243568] w-fit text-white mx-auto h-12 px-3 rounded-md shadow-xl hover:scale-105 duration-300"
           >
             Calculate shipping charge
           </button>
         )}
 
         {summary.price && (
-          <div className="w-full max-w-4xl mx-auto my-3 p-6 rounded-xl bg-transparent text-white">
+          <div className="w-full max-w-4xl mx-auto my-3 p-6 rounded-md bg-transparent text-white">
             <h1 className="text-3xl font-bold text-center mb-6">Summary</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <SummaryItem
