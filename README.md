@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# Rate Calc Plugin
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The **Rate Calc Plugin** is a WordPress plugin that integrates a React app for rate calculation into your website. The plugin allows the upload of CSV files (e.g., `extraZones.csv`, `importZones.csv`, `rateCards.csv`) from the WordPress admin panel and displays the React app through a shortcode.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Embed a React app for rate calculation into your WordPress site.
+- Upload CSV files through the WordPress admin panel for dynamic content handling.
+- Easy configuration via a simple shortcode.
+- Admin interface for file management (upload and overwrite CSV files).
 
-### `npm start`
+## Installation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Step 1: Install the Plugin
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Download the plugin or clone the repository to your local machine.
+2. In your WordPress installation, navigate to **Plugins > Add New**.
+3. Click on **Upload Plugin** and select the plugin zip file (if you downloaded a zipped version).
+4. Click **Install Now** and then **Activate** the plugin.
 
-### `npm test`
+Alternatively, you can manually upload the plugin directory (`rate-calc-plugin`) to the `/wp-content/plugins/` directory of your WordPress installation.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Step 2: Add the Shortcode to Your Website
 
-### `npm run build`
+To display the React app on your site, add the following shortcode to any page or post where you want to display the rate calculator:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```text
+[react_app]
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This shortcode will render the React app inside a `div` with the `id="root"`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Step 3: Upload CSV Files
 
-### `npm run eject`
+1. In the WordPress dashboard, go to **CSV File Manager** in the admin menu (located on the left sidebar).
+2. You'll be able to upload three CSV files:
+   - `extraZones.csv`
+   - `importZones.csv`
+   - `rateCards.csv`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+These files will be uploaded to the plugin's `build/` directory, and they will overwrite existing files with the same names.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Admin CSV File Manager
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The plugin provides an **Admin CSV File Manager** page under the WordPress admin panel to manage the CSV files:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. Go to **CSV File Manager** in the left sidebar menu.
+2. On the CSV File Manager page, you will see the option to upload three different CSV files:
+   - **extraZones.csv**
+   - **importZones.csv**
+   - **rateCards.csv**
 
-## Learn More
+Each file upload will replace any existing file with the same name in the `build/` directory, ensuring that the latest data is available.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### CSV File Upload Process
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **File Types**: Only CSV files are accepted for upload. Any non-CSV file will result in an error message.
+- **File Overwriting**: Uploaded files will overwrite any existing files with the same names in the plugin's `build/` directory.
+- **Error Handling**: If there is an issue with the upload (e.g., wrong file type or upload failure), an error message will be displayed.
 
-### Code Splitting
+## Plugin Settings
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **React App Scripts**: The plugin automatically enqueues the necessary React app scripts and styles on the frontend.
+- **CSV File Manager**: An admin page is provided for uploading CSV files. Only authorized users (those with `manage_options` capability) can upload files.
+- **File Types**: Only CSV files are accepted for upload. Any non-CSV file will result in an error message.
 
-### Analyzing the Bundle Size
+## Troubleshooting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Q1: I can't see the React app on the page.
 
-### Making a Progressive Web App
+- Make sure that you've added the shortcode `[react_app]` to the page.
+- Check the browser's developer tools (Console and Network tab) to ensure that the React app's JavaScript and CSS files are loading correctly.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Q2: What happens if I upload the same CSV files again?
 
-### Advanced Configuration
+- The plugin will overwrite any existing CSV files with the same names in the `build/` directory.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Q3: Can I modify the React app?
 
-### Deployment
+- Yes, the React app is included in the plugin's `/build/` directory. You can modify the React app and recompile it to update the frontend.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## License
 
-### `npm run build` fails to minify
+This plugin is licensed under the GPL2 license.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Author
+
+- **Author Name**: SajadAli
+- **Author URI**: [https://sajadaliismail.live](https://sajadaliismail.live)

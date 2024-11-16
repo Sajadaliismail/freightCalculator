@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import "./App.css";
 import { calculatePrice, validateData } from "./utilities";
-import useFetchCSV from "./useFetchZones";
-import useFetchExtraRates from "./useFetchExtraRates";
-import useFetchRates from "./useFetchRates";
+import useFetchCSV from "./useFetchZones.jsx";
+import useFetchExtraRates from "./useFetchExtraRates.jsx";
+import useFetchRates from "./useFetchRates.jsx";
 
 const FormField = ({ label, type, value, onChange, name, error }) => {
   return (
