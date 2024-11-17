@@ -104,6 +104,7 @@ function App() {
   const [heading, setHeading] = useState("Import from");
   const [selectedImport, setSelectedImport] = useState("India");
   const [selectedExport, setSelectedExport] = useState("Qatar");
+  const [isQuerySend, setIsQuerySend] = useState(false);
   const { countries, zones } = useFetchCSV("/importZones.csv");
   const { extraRates } = useFetchExtraRates("./extraZones.csv");
   const { data } = useFetchRates("./rateCards.csv");
@@ -209,19 +210,22 @@ function App() {
       });
 
       const result = await response.json();
-
+      setIsQuerySend(true);
       if (result.success) {
-        alert("Form submitted successfully!");
+        // alert("Form submitted successfully!");
       } else {
         alert("Error: " + result.message);
       }
     } catch (error) {
+      setIsQuerySend(true);
+
       console.error("Error submitting form:", error);
-      alert("Submission failed.");
+      // alert("Submission failed.");
     }
   };
 
   const toggleMode = (e) => {
+    setIsQuerySend(false);
     setSummary({});
     resetError();
     if (e.target.value === "import") {
@@ -236,6 +240,8 @@ function App() {
   };
 
   const handleImportCountryChange = (e) => {
+    setIsQuerySend(false);
+
     setSummary({});
     resetError();
 
@@ -246,6 +252,8 @@ function App() {
     setSelectedImport(e.target.value);
   };
   const handleExportCountryChange = (e) => {
+    setIsQuerySend(false);
+
     setSummary({});
 
     setError((prev) => ({
@@ -257,6 +265,7 @@ function App() {
 
   const handleInputChange = (e) => {
     setSummary({});
+    setIsQuerySend(false);
 
     const { name, value } = e.target;
     setError((prev) => ({
@@ -487,7 +496,11 @@ function App() {
             Calculate shipping charge
           </button>
         )}
-
+        {isQuerySend && (
+          <div className="bg-green-700 text-white p-4 rounded-md shadow-md text-center font-medium flex items-center justify-center gap-2 w-fit mx-auto my-3">
+            Thank you for your query! We’ll get in touch with you shortly.
+          </div>
+        )}
         {summary.price && (
           <div className="w-full max-w-4xl mx-auto my-3 p-6 rounded-md bg-transparent text-white">
             <h1 className="text-3xl font-bold text-center mb-6">Summary</h1>
