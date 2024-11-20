@@ -10,6 +10,7 @@ const useFetchExtraRates = (csvPath) => {
       try {
         const response = await fetch(csvPath);
         const csvData = await response.text();
+        console.log(response);
 
         Papa.parse(csvData, {
           header: true,
