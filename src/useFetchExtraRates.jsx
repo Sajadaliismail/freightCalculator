@@ -4,13 +4,14 @@ import Papa from "papaparse";
 const useFetchExtraRates = (csvPath) => {
   const [extraRates, setExtraRates] = useState([]);
   const [error, setError] = useState(null);
+  const [isLoadingExtraRates, setIsLoadingExtraRates] = useState(false);
 
   useEffect(() => {
     const fetchCSV = async () => {
       try {
+        setIsLoadingExtraRates(true);
         const response = await fetch(csvPath);
         const csvData = await response.text();
-        console.log(response);
 
         Papa.parse(csvData, {
           header: true,
@@ -22,13 +23,15 @@ const useFetchExtraRates = (csvPath) => {
         });
       } catch (err) {
         setError(err);
+      } finally {
+        setIsLoadingExtraRates(false);
       }
     };
 
     fetchCSV();
   }, [csvPath]);
 
-  return { extraRates, error };
+  return { extraRates, error, isLoadingExtraRates };
 };
 
 export default useFetchExtraRates;

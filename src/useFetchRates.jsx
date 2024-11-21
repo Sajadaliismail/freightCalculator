@@ -4,6 +4,7 @@ import Papa from "papaparse";
 const useFetchRates = (csvPath) => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
+  const [isLoadingRates, setIsLoadingRates] = useState(false);
 
   const convertData = (dataArray) => {
     return dataArray.map((data) => [
@@ -17,6 +18,7 @@ const useFetchRates = (csvPath) => {
   useEffect(() => {
     const fetchCSV = async () => {
       try {
+        setIsLoadingRates(true);
         const response = await fetch(csvPath);
         const csvData = await response.text();
 
@@ -30,13 +32,15 @@ const useFetchRates = (csvPath) => {
         });
       } catch (err) {
         setError(err);
+      } finally {
+        setIsLoadingRates(false);
       }
     };
 
     fetchCSV();
   }, [csvPath]);
 
-  return { data, error };
+  return { data, error, isLoadingRates };
 };
 
 export default useFetchRates;

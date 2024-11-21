@@ -5,6 +5,7 @@ const useFetchCountries = (csvPath) => {
   const [zones, setZones] = useState([]);
   const [countries, setCountries] = useState([]);
   const [error, setError] = useState(null);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(false);
   const convertToCountryZoneObject = (data) => {
     const countryZoneMap = {};
 
@@ -18,7 +19,9 @@ const useFetchCountries = (csvPath) => {
   useEffect(() => {
     const fetchCSV = async () => {
       try {
+        setIsLoadingCountries(true);
         const response = await fetch(csvPath);
+
         const csvData = await response.text();
 
         Papa.parse(csvData, {
@@ -34,13 +37,15 @@ const useFetchCountries = (csvPath) => {
         });
       } catch (err) {
         setError(err);
+      } finally {
+        setIsLoadingCountries(false);
       }
     };
 
     fetchCSV();
   }, [csvPath]);
 
-  return { countries, zones, error };
+  return { countries, zones, error, isLoadingCountries };
 };
 
 export default useFetchCountries;

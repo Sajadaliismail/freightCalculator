@@ -3,91 +3,40 @@ import { calculatePrice, validateData } from "./utilities.js";
 import useFetchCSV from "./useFetchZones.jsx";
 import useFetchExtraRates from "./useFetchExtraRates.jsx";
 import useFetchRates from "./useFetchRates.jsx";
+import FormField from "./FormField.jsx";
+import RadioButton from "./RadioButton.jsx";
 
-export const FormField = ({
-  label,
-  type,
-  value,
-  onChange,
-  name,
-  error,
-  ...props
-}) => {
-  return (
-    <div className="w-full mb-2 md:mb-1">
-      <label
-        className="block font-medium md:text-base text-sm  mb-1"
-        htmlFor={name}
-      >
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          id={name}
-          name={name}
-          type={type}
-          value={value}
-          onChange={onChange}
-          className={`
-            w-full px-3 py-2 bg-white text-gray-900 rounded-md
-            border ${error ? "border-red-500" : "border-gray-300"}
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-            transition duration-150 ease-in-out
-          `}
-          placeholder={label}
-          {...props}
-        />
-        {error && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <p className=" text-sm text-red-500 ">{error}</p>
-            <svg
-              className="h-5 w-5 text-red-500"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+const errorState = {
+  weight: "",
+  boxes: "",
+  name: "",
+  phone: "",
+  length: "",
+  width: "",
+  height: "",
+  postCode: "",
+  email: "",
+  countrySelected: "",
 };
-const RadioButton = ({ id, value, checked, onChange, label }) => {
-  return (
-    <label
-      htmlFor={id}
-      className="flex items-center space-x-3 cursor-pointer group"
-    >
-      <div className="relative">
-        <input
-          type="radio"
-          id={id}
-          value={value}
-          checked={checked}
-          onChange={onChange}
-          className="sr-only"
-        />
-        <div className="w-6 h-6 bg-white border-2 border-gray-300 rounded-full group-hover:border-blue-500 transition-colors">
-          <div
-            className={`absolute w-3 h-3 bg-blue-600 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-opacity ${checked ? "opacity-100" : "opacity-0"}`}
-          ></div>
-        </div>
-      </div>
-      <span className="text-lg font-medium  group-hover:text-blue-200 transition-colors">
-        {label}
-      </span>
-    </label>
-  );
+
+const formState = {
+  weight: undefined,
+  boxes: undefined,
+  name: undefined,
+  phone: undefined,
+  length: undefined,
+  width: undefined,
+  height: undefined,
+  postCode: undefined,
+  email: undefined,
+  remarks: undefined,
 };
 const SummaryItem = ({ label, value, highlight = false }) => {
   return (
     <div
-      className={`flex justify-between items-center p-3 rounded ${highlight ? "bg-gray-700 col-span-full md:col-span-3" : "bg-gray-700/50"}`}
+      className={`flex justify-between items-center p-3 rounded ${
+        highlight ? "bg-gray-700 col-span-full md:col-span-3" : "bg-gray-700/50"
+      }`}
     >
       <h2 className={`font-medium ${highlight ? "text-lg" : "text-base"}`}>
         {label}:
@@ -105,9 +54,15 @@ function RateCalculator() {
   const [selectedImport, setSelectedImport] = useState("India");
   const [selectedExport, setSelectedExport] = useState("Qatar");
   const [isQuerySend, setIsQuerySend] = useState(false);
-  const { countries, zones } = useFetchCSV("/importZones.csv");
-  const { extraRates } = useFetchExtraRates("./extraZones.csv");
-  const { data } = useFetchRates("./rateCards.csv");
+  const { countries, zones, isLoadingCountries } = useFetchCSV(
+    "https://script.google.com/macros/s/AKfycbxtJBKFspRkxxqSW2W3_JkbwvQJ_4r5aa0Zajq-xhEJMcOJxQq4OTcT-N3pBN8OMXOd/exec"
+  );
+  const { extraRates, isLoadingExtraRates } = useFetchExtraRates(
+    "https://script.google.com/macros/s/AKfycbym1lCLDuBdiH6NOA5nS9Q1dGGzWViH0Io1MVByAf85ZHsp3Z3FsVQZ4HQVtTUEwc4OzQ/exec"
+  );
+  const { data, isLoadingRates } = useFetchRates(
+    "https://script.google.com/macros/s/AKfycbwh9MhIhr6r_1akKuNUsz40lUksEopgMajhwAWOlg3AydTXRlW6DI9jpGyCvLoK98h2/exec"
+  );
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef(null);
 
@@ -115,45 +70,12 @@ function RateCalculator() {
     setIsOpen(!isOpen);
   };
 
-  const [error, setError] = useState({
-    weight: "",
-    boxes: "",
-    name: "",
-    phone: "",
-    length: "",
-    width: "",
-    height: "",
-    postCode: "",
-    email: "",
-    countrySelected: "",
-  });
+  const [error, setError] = useState(errorState);
   const [summary, setSummary] = useState({});
 
-  const [formValues, setformValues] = useState({
-    weight: undefined,
-    boxes: undefined,
-    name: undefined,
-    phone: undefined,
-    length: undefined,
-    width: undefined,
-    height: undefined,
-    postCode: undefined,
-    email: undefined,
-    remarks: undefined,
-  });
+  const [formValues, setformValues] = useState(formState);
   const resetError = () => {
-    setError({
-      weight: "",
-      boxes: "",
-      name: "",
-      phone: "",
-      length: "",
-      width: "",
-      height: "",
-      postCode: "",
-      email: "",
-      countrySelected: "",
-    });
+    setError(errorState);
   };
   const submitForm = async () => {
     try {
@@ -168,6 +90,7 @@ function RateCalculator() {
       setError(validate.error);
 
       if (!validate.err) {
+        submitQuery();
         resetError();
         const result = calculatePrice(
           {
@@ -201,24 +124,49 @@ function RateCalculator() {
     if (validate.err) return;
 
     try {
-      const response = await fetch(window.wpApiSettings.restUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-WP-Nonce": window.wpApiSettings.nonce,
-        },
-        body: JSON.stringify({
-          ...formValues,
-          mode,
-          selectedExport,
-          selectedImport,
-        }),
-      });
+      const data = {
+        email: formValues.email,
+        name: formValues.name,
+        phone: formValues.phone,
+        weight: formValues.weight,
+        length: formValues.length,
+        height: formValues.height,
+        width: formValues.weight,
+        mode,
+        to: selectedExport,
+        from: selectedImport,
+        boxes: formValues.boxes,
+        remarks: formValues.remarks,
+        postCode: formValues.postCode,
+      };
 
-      const result = await response.json();
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbzmZKNngwkGCjLnmIwPks9JnRTcKTUxEEIxu4n6r0PgVcBrNsz5UrxNBImmrIHMNBsh/exec",
+        {
+          method: "POST",
+          // mode: "no-cors",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `Name=${data.name}&Email=${data.email}&Phone=${
+            data.phone
+          }&Mode=${data.mode}&From=${data.from}&To=${data.to}&Weight=${
+            data.weight
+          }&Length=${data.length}&Width=${data.width}&Height=${
+            data.height
+          }&Boxes=${data.boxes}&Postcode=${data.postCode}&Remarks=${
+            data.remarks
+          }&Time=${new Intl.DateTimeFormat("en-GB", {
+            timeZone: "Asia/Dubai",
+            dateStyle: "short",
+            timeStyle: "medium",
+          }).format(new Date())}`,
+        }
+      );
+      const result = await response.text();
+      console.log(result);
+
       setIsQuerySend(true);
-      if (result.success) {
-        // alert("Form submitted successfully!");
+      if (result === "Success") {
+        setIsQuerySend(true);
       } else {
         alert("Error: " + result.message);
       }
@@ -305,9 +253,15 @@ function RateCalculator() {
   }, [mode]);
 
   return (
-    <>
+    <div className="relative">
+      {(isLoadingCountries || isLoadingExtraRates || isLoadingRates) && (
+        <div className="flex absolute justify-center items-center h-full w-full bg-[#00000075] z-10">
+          <div className="animate-spin  rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      )}
       <div className="bg-white  h-20 relative items-center gap-14 text-xl text-[#21428b] ">
         <img
+          alt="logo"
           src="/logixman.svg"
           width={120}
           height={116}
@@ -315,6 +269,7 @@ function RateCalculator() {
         ></img>
         <div className="sm:hidden relative items-center flex justify-center h-full">
           <img
+            alt="menu"
             src="/menu.svg"
             onClick={toggleDrawer}
             className="cursor-pointer rounded-md ml-auto mr-2 hover:bg-[#ff6900] transition-colors duration-300"
@@ -400,7 +355,7 @@ function RateCalculator() {
           </a>
         </div>
       </div>
-      <div className="flex flex-col min-w-[100vw]  bg-[radial-gradient(ellipse_at_center,_#21428b,_#020024)] text-white pt-14">
+      <div className="flex  flex-col min-w-[100vw]  bg-[radial-gradient(ellipse_at_center,_#21428b,_#020024)] text-white pt-14">
         <h1 className="text-center text-3xl md:text-5xl py-8 font-semibold ">
           Rate Calculation
         </h1>
@@ -643,7 +598,7 @@ function RateCalculator() {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
