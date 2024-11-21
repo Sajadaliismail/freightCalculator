@@ -1,6 +1,15 @@
-const FormField = ({ label, type, value, onChange, name, error, ...props }) => {
+const FormField = ({
+  label,
+  type,
+  value,
+  onChange,
+  name,
+  error,
+  className,
+  ...props
+}) => {
   return (
-    <div className="w-full mb-2 md:mb-1">
+    <div className={`w-full mb-2 md:mb-1  ${className} `}>
       <label
         className="block font-medium md:text-base text-sm  mb-1"
         htmlFor={name}

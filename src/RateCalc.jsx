@@ -54,15 +54,11 @@ function RateCalculator() {
   const [selectedImport, setSelectedImport] = useState("India");
   const [selectedExport, setSelectedExport] = useState("Qatar");
   const [isQuerySend, setIsQuerySend] = useState(false);
-  const { countries, zones, isLoadingCountries } = useFetchCSV(
-    "https://script.google.com/macros/s/AKfycbxtJBKFspRkxxqSW2W3_JkbwvQJ_4r5aa0Zajq-xhEJMcOJxQq4OTcT-N3pBN8OMXOd/exec"
-  );
-  const { extraRates, isLoadingExtraRates } = useFetchExtraRates(
-    "https://script.google.com/macros/s/AKfycbym1lCLDuBdiH6NOA5nS9Q1dGGzWViH0Io1MVByAf85ZHsp3Z3FsVQZ4HQVtTUEwc4OzQ/exec"
-  );
-  const { data, isLoadingRates } = useFetchRates(
-    "https://script.google.com/macros/s/AKfycbwh9MhIhr6r_1akKuNUsz40lUksEopgMajhwAWOlg3AydTXRlW6DI9jpGyCvLoK98h2/exec"
-  );
+  const { countries, zones, isLoadingCountries } =
+    useFetchCSV("./importZones.csv");
+  const { extraRates, isLoadingExtraRates } =
+    useFetchExtraRates("./extraZones.csv");
+  const { data, isLoadingRates } = useFetchRates("./rateCards.csv");
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef(null);
 
@@ -90,7 +86,6 @@ function RateCalculator() {
       setError(validate.error);
 
       if (!validate.err) {
-        submitQuery();
         resetError();
         const result = calculatePrice(
           {
@@ -105,6 +100,7 @@ function RateCalculator() {
         );
 
         setSummary(result);
+        submitQuery();
       }
     } catch (error) {
       console.log(error);
@@ -140,29 +136,24 @@ function RateCalculator() {
         postCode: formValues.postCode,
       };
 
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbzmZKNngwkGCjLnmIwPks9JnRTcKTUxEEIxu4n6r0PgVcBrNsz5UrxNBImmrIHMNBsh/exec",
-        {
-          method: "POST",
-          // mode: "no-cors",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `Name=${data.name}&Email=${data.email}&Phone=${
-            data.phone
-          }&Mode=${data.mode}&From=${data.from}&To=${data.to}&Weight=${
-            data.weight
-          }&Length=${data.length}&Width=${data.width}&Height=${
-            data.height
-          }&Boxes=${data.boxes}&Postcode=${data.postCode}&Remarks=${
-            data.remarks
-          }&Time=${new Intl.DateTimeFormat("en-GB", {
-            timeZone: "Asia/Dubai",
-            dateStyle: "short",
-            timeStyle: "medium",
-          }).format(new Date())}`,
-        }
-      );
+      const response = await fetch("", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `Name=${data.name}&Email=${data.email}&Phone=${data.phone}&Mode=${
+          data.mode
+        }&From=${data.from}&To=${data.to}&Weight=${data.weight}&Length=${
+          data.length
+        }&Width=${data.width}&Height=${data.height}&Boxes=${
+          data.boxes
+        }&Postcode=${data.postCode}&Remarks=${
+          data.remarks
+        }&Time=${new Intl.DateTimeFormat("en-GB", {
+          timeZone: "Asia/Dubai",
+          dateStyle: "short",
+          timeStyle: "medium",
+        }).format(new Date())}&Cost=${summary.price}`,
+      });
       const result = await response.text();
-      console.log(result);
 
       setIsQuerySend(true);
       if (result === "Success") {
@@ -246,9 +237,9 @@ function RateCalculator() {
   }, []);
   useEffect(() => {
     setHeading(() => {
-      if (mode === "import") return "Import form";
-      else if (mode === "export") return "Export form";
-      else if (mode === "crosstrade") return "Cross trade form";
+      if (mode === "import") return "Import";
+      else if (mode === "export") return "Export";
+      else if (mode === "crosstrade") return "Cross trade";
     });
   }, [mode]);
 
@@ -262,7 +253,7 @@ function RateCalculator() {
       <div className="bg-white  h-20 relative items-center gap-14 text-xl text-[#21428b] ">
         <img
           alt="logo"
-          src="/logixman.svg"
+          src="/logo.svg"
           width={120}
           height={116}
           className=" absolute left-4 md:left-36 -bottom-12"
@@ -280,7 +271,10 @@ function RateCalculator() {
               isOpen ? "translate-x-0" : "-translate-x-full"
             } transition-transform duration-300 ease-in-out`}
           >
-            <div ref={drawerRef} className="flex flex-col p-4">
+            <div
+              ref={drawerRef}
+              className="flex flex-col p-4 gap-5 text-xl text-black"
+            >
               <button
                 onClick={toggleDrawer}
                 className="self-end p-2 mb-4  transition-colors duration-300 rounded-md"
@@ -302,25 +296,25 @@ function RateCalculator() {
               </button>
               <a
                 className="hover:text-[#f69321]  duration-300 transition-colors"
-                href="/"
+                href="#"
               >
                 Home
               </a>
               <a
                 className="hover:text-[#f69321] duration-300 transition-colors"
-                href="/about-us"
+                href="#"
               >
                 About Us
               </a>
               <a
                 className="hover:text-[#f69321] duration-300 transition-colors"
-                href="/services"
+                href="#"
               >
                 Services
               </a>
               <a
                 className="hover:text-[#f69321] duration-300 transition-colors"
-                href="/contact-us"
+                href="#"
               >
                 Contact Us
               </a>
@@ -331,31 +325,31 @@ function RateCalculator() {
         <div className="sm:flex flex-row md:justify-center sm:justify-end items-center gap-16 h-full hidden">
           <a
             className="hover:text-[#f69321]  duration-300 transition-colors"
-            href="/"
+            href="#"
           >
             Home
           </a>
           <a
             className="hover:text-[#f69321] duration-300 transition-colors"
-            href="/about-us"
+            href="#"
           >
             About Us
           </a>
           <a
             className="hover:text-[#f69321] duration-300 transition-colors"
-            href="/services"
+            href="#"
           >
             Services
           </a>
           <a
             className="hover:text-[#f69321] duration-300 transition-colors"
-            href="/contact-us"
+            href="#"
           >
             Contact Us
           </a>
         </div>
       </div>
-      <div className="flex  flex-col min-w-[100vw]  bg-[radial-gradient(ellipse_at_center,_#21428b,_#020024)] text-white pt-14">
+      <div className="flex  flex-col min-w-[100vw]  bg-[radial-gradient(ellipse_at_center,_#c53449,_#3e0218)] text-white pt-14">
         <h1 className="text-center text-3xl md:text-5xl py-8 font-semibold ">
           Rate Calculation
         </h1>
@@ -392,51 +386,108 @@ function RateCalculator() {
           </span>
         )}
 
-        <div className="flex md:flex-row flex-col gap-16 md:gap-0 md:px-3 px-3 w-full">
-          <div className="flex flex-col w-full text-center md:px-16 gap-3">
-            <label className="flex flex-col">
-              Country from
-              <select
-                className="h-10 rounded-md   text-black "
-                value={selectedImport}
-                onChange={handleImportCountryChange}
-              >
-                {mode === "export" ? (
-                  <option className="text-black" value={"UAE"}>
-                    UAE
-                  </option>
-                ) : (
-                  countries
-                    .filter((country) => {
-                      if (mode !== "crosstrade" && country === "UAE") {
-                        return false;
-                      }
-                      return true;
-                    })
-                    .map((country, idx) => (
-                      <option className="text-black" key={idx} value={country}>
-                        {country}
-                      </option>
-                    ))
-                )}
-              </select>
-            </label>
+        <div className="flex md:flex-row flex-wrap justify-center gap-5 md:gap-5 md:px-3 px-3 w-full">
+          <label className="flex flex-col sm:w-[40%] w-full">
+            Country from
+            <select
+              className="h-10 rounded-md   text-black "
+              value={selectedImport}
+              onChange={handleImportCountryChange}
+            >
+              {mode === "export" ? (
+                <option className="text-black" value={"UAE"}>
+                  UAE
+                </option>
+              ) : (
+                countries
+                  .filter((country) => {
+                    if (mode !== "crosstrade" && country === "UAE") {
+                      return false;
+                    }
+                    return true;
+                  })
+                  .map((country, idx) => (
+                    <option className="text-black" key={idx} value={country}>
+                      {country}
+                    </option>
+                  ))
+              )}
+            </select>
+          </label>
+          <label className="flex flex-col sm:w-[40%] w-full">
+            Country to
+            <select
+              className="h-10 rounded-md  text-black "
+              value={selectedExport}
+              onChange={handleExportCountryChange}
+            >
+              {mode === "import" ? (
+                <option className="text-black" value={"UAE"}>
+                  UAE
+                </option>
+              ) : (
+                countries
+                  .filter((country) => {
+                    if (mode !== "crosstrade" && country === "UAE") {
+                      return false;
+                    }
+                    return true;
+                  })
+                  .map((country, idx) => (
+                    <option className="text-black" key={idx} value={country}>
+                      {country}
+                    </option>
+                  ))
+              )}
+            </select>
+          </label>
+          <FormField
+            className={"sm:w-[40%]"}
+            error={error.weight}
+            label="Total Weight (Kg)"
+            type="number"
+            value={formValues.weight}
+            name="weight"
+            onChange={handleInputChange}
+          />
+          <FormField
+            className={"sm:w-[40%]"}
+            error={error.boxes}
+            label="Number of Boxes"
+            type="number"
+            value={formValues.boxes}
+            name={"boxes"}
+            onChange={handleInputChange}
+          />
+
+          <div className="flex flex-row w-full gap-3 sm:w-[40%] sm:h-fit">
             <FormField
-              error={error.weight}
-              label="Total Weight (Kg)"
+              error={error.length}
+              label="Length (cm)"
               type="number"
-              value={formValues.weight}
-              name="weight"
+              value={formValues.length}
+              name="length"
               onChange={handleInputChange}
             />
             <FormField
-              error={error.boxes}
-              label="Number of Boxes"
+              label="Width (cm)"
+              error={error.width}
               type="number"
-              value={formValues.boxes}
-              name={"boxes"}
+              value={formValues.width}
+              name="width"
               onChange={handleInputChange}
             />
+            <FormField
+              label="Height (cm)"
+              type="number"
+              error={error.height}
+              value={formValues.height}
+              name="height"
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 sm:w-[40%] w-full">
             <FormField
               error={error.name}
               label="Name"
@@ -445,82 +496,6 @@ function RateCalculator() {
               name="name"
               onChange={handleInputChange}
             />
-            <div className="grid md:grid-cols-2 gap-6">
-              <FormField
-                error={error.phone}
-                label="Phone"
-                type="tel"
-                value={formValues.phone}
-                name="phone"
-                onChange={handleInputChange}
-              />
-              <FormField
-                error={error.email}
-                label="Email"
-                type="email"
-                value={formValues.email}
-                name="email"
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col w-full text-center md:px-16 gap-3">
-            <label className="flex flex-col">
-              Country to
-              <select
-                className="h-10 rounded-md  text-black "
-                value={selectedExport}
-                onChange={handleExportCountryChange}
-              >
-                {mode === "import" ? (
-                  <option className="text-black" value={"UAE"}>
-                    UAE
-                  </option>
-                ) : (
-                  countries
-                    .filter((country) => {
-                      if (mode !== "crosstrade" && country === "UAE") {
-                        return false;
-                      }
-                      return true;
-                    })
-                    .map((country, idx) => (
-                      <option className="text-black" key={idx} value={country}>
-                        {country}
-                      </option>
-                    ))
-                )}
-              </select>
-            </label>
-
-            <div className="flex flex-row w-full gap-3">
-              <FormField
-                error={error.length}
-                label="Length (cm)"
-                type="number"
-                value={formValues.length}
-                name="length"
-                onChange={handleInputChange}
-              />
-              <FormField
-                label="Width (cm)"
-                error={error.width}
-                type="number"
-                value={formValues.width}
-                name="width"
-                onChange={handleInputChange}
-              />
-              <FormField
-                label="Height (cm)"
-                type="number"
-                error={error.height}
-                value={formValues.height}
-                name="height"
-                onChange={handleInputChange}
-              />
-            </div>
-
             <FormField
               label="Post code"
               type="text"
@@ -529,20 +504,41 @@ function RateCalculator() {
               name="postCode"
               onChange={handleInputChange}
             />
-            <label className="flex flex-col font-medium text-sm md:text-base">
-              Remarks
-              <textarea
-                className="rounded-md outline-0 text-black p-2"
-                rows={5}
-                placeholder="Your remarks"
-                maxLength={250}
-                value={formValues.remarks}
-                name="remarks"
-                onChange={handleInputChange}
-                style={{ resize: "none" }}
-              ></textarea>
-            </label>
           </div>
+          <div className="flex flex-col gap-3 sm:w-[40%] w-full">
+            <FormField
+              className={""}
+              error={error.phone}
+              label="Phone"
+              type="tel"
+              value={formValues.phone}
+              name="phone"
+              onChange={handleInputChange}
+            />
+            <FormField
+              error={error.email}
+              label="Email"
+              type="email"
+              value={formValues.email}
+              name="email"
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <label className="flex flex-col font-medium text-sm md:text-base sm:w-[40%] w-full ">
+            Remarks
+            <textarea
+              className="rounded-md outline-0 text-black p-2"
+              rows={5}
+              placeholder="Your remarks"
+              maxLength={250}
+              value={formValues.remarks}
+              name="remarks"
+              onChange={handleInputChange}
+              style={{ resize: "none" }}
+            ></textarea>
+          </label>
+          {/* </div> */}
         </div>
         <div className="md:py-10 py-4  flex justify-center flex-col md:text-xl text-lg">
           {mode === "crosstrade" ? (
@@ -560,11 +556,7 @@ function RateCalculator() {
               Calculate shipping charge
             </button>
           )}
-          {isQuerySend && (
-            <div className="bg-green-700 text-white p-4 rounded-md shadow-md text-center font-medium flex items-center justify-center gap-2 w-fit mx-auto my-3">
-              Thank you for your query! We’ll get in touch with you shortly.
-            </div>
-          )}
+
           {summary.price && (
             <div className="w-full max-w-4xl mx-auto my-3 p-6 rounded-md bg-transparent text-white">
               <h1 className="text-3xl font-bold text-center mb-6">Summary</h1>
@@ -594,6 +586,11 @@ function RateCalculator() {
                   highlight
                 />
               </div>
+            </div>
+          )}
+          {isQuerySend && (
+            <div className="bg-green-700 text-white p-4 rounded-md shadow-md text-center font-medium flex items-center justify-center gap-2 w-fit mx-auto my-3">
+              Thank you for your query! We’ll get in touch with you shortly.
             </div>
           )}
         </div>

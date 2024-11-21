@@ -5,29 +5,28 @@ function Dashboard({ data = [], setIsAuthenticated = () => {} }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortDirection, setSortDirection] = useState("asc");
   const [searchTerm, setSearchTerm] = useState("");
-    const [to, setTo] = useState('');
-  const [subject, setSubject] = useState('');
-  const [content, setContent] = useState('');
-  const [replyWindow,setReplyWindow] = useState(null)
+  const [to, setTo] = useState("");
+  const [subject, setSubject] = useState("");
+  const [content, setContent] = useState("");
+  const [replyWindow, setReplyWindow] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Sending email:', { to, subject, content });
-    setTo('');
-    setSubject('');
-    setContent('');
+    console.log("Sending email:", { to, subject, content });
+    setTo("");
+    setSubject("");
+    setContent("");
   };
 
-  const handleClick =(index)=>{
-    setReplyWindow(true)
-    const details = data[index]
-    console.log(data,index);
-    
+  const handleClick = (index) => {
+    setReplyWindow(true);
+    const details = data[index];
+    console.log(data, index);
+
     // setTo(details.email)
+  };
 
-  }
-
-  const closeReply=()=>setReplyWindow(false)
+  const closeReply = () => setReplyWindow(false);
   const sortedAndFilteredData = useMemo(() => {
     return [...data]
       .filter((item) =>
@@ -113,11 +112,20 @@ function Dashboard({ data = [], setIsAuthenticated = () => {} }) {
                 className="border-b border-gray-200 hover:bg-gray-50"
               >
                 {Object.entries(item).map(([key, value]) => (
-                  <td key={key} className="px-4 py-2 cursor-pointer" onClick={()=>{
-                    if(key === 'replied' && value == false)
-                      handleClick()
-                  }}> 
-                    {key === "replied" ? (value ? "Yes" : "No") : key==='date'? new Date(value).toLocaleString() :value.toString()}
+                  <td
+                    key={key}
+                    className="px-4 py-2 cursor-pointer"
+                    onClick={() => {
+                      if (key === "replied" && value == false) handleClick();
+                    }}
+                  >
+                    {key === "replied"
+                      ? value
+                        ? "Yes"
+                        : "No"
+                      : key === "date"
+                      ? new Date(value).toLocaleString()
+                      : value.toString()}
                   </td>
                 ))}
               </tr>
@@ -162,75 +170,87 @@ function Dashboard({ data = [], setIsAuthenticated = () => {} }) {
         </div>
       </div>
 
-{replyWindow && 
-      <div  className="absolute w-full -bottom-0 right-0"> <div className="relative max-w-2xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <button onClick={closeReply} className="absolute right-5">
-         <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6  fill-black  rounded-md transition-colors duration-300"
-                  viewBox="0 0 24 24"
-                  stroke="#21428B"
-                  >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                    />
-                </svg>
-      </button>
-      <h2 className="text-2xl font-bold mb-6">Compose Reply</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="to" className="block text-sm font-medium text-gray-700">
-            To:
-          </label>
-          <input
-            type="email"
-            id="to"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            />
+      {replyWindow && (
+        <div className="absolute w-full -bottom-0 right-0">
+          {" "}
+          <div className="relative max-w-2xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+            <button onClick={closeReply} className="absolute right-5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6  fill-black  rounded-md transition-colors duration-300"
+                viewBox="0 0 24 24"
+                stroke="#21428B"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <h2 className="text-2xl font-bold mb-6">Compose Reply</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="to"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  To:
+                </label>
+                <input
+                  type="email"
+                  id="to"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="subject"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Subject:
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="content"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Message:
+                </label>
+                <textarea
+                  id="content"
+                  rows={6}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                ></textarea>
+              </div>
+              <div>
+                <button
+                  type="submit"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Send Reply
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div>
-          <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
-            Subject:
-          </label>
-          <input
-            type="text"
-            id="subject"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            />
-        </div>
-        <div>
-          <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-            Message:
-          </label>
-          <textarea
-            id="content"
-            rows={6}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            ></textarea>
-        </div>
-        <div>
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-            Send Reply
-          </button>
-        </div>
-      </form>
-    </div></div>
-    }
+      )}
     </div>
   );
 }

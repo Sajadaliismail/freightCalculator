@@ -101,7 +101,10 @@ export const calculatePrice = (
     let extraUnitsCharge = ((maxValue - 70) / 0.5) * extraRates[rate - 1];
     let minimumCharge = zonePrices.get(70)[rate - 1];
     result = extraUnitsCharge + minimumCharge;
+    console.log(extraRates);
   }
+  console.log(result);
+
   const summary = {
     price: result,
     totalWeight: weight,
@@ -111,5 +114,7 @@ export const calculatePrice = (
     imported: data.selectedImport,
     exported: data.selectedExport,
   };
+  console.log(summary);
+
   return summary;
 };
